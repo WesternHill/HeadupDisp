@@ -9,6 +9,7 @@
 
 #include "can.h"
 #include "lib.h"
+#include "storage.hpp"
 #include "main.hpp"
 
 #define MAXSOCK 2
@@ -119,7 +120,6 @@ int main(int argc, char *argv[]){
 		}
 
 		if (select(skt[devnum-1]+1, &rdfs, NULL, NULL, timeout_current) <= 0) {
-			//perror("select");
 			running = 0; //end of mainroop
 			continue;
 		}
@@ -138,15 +138,17 @@ int main(int argc, char *argv[]){
 				nbytes = recvmsg(skt[i], &msg, 0);
 //				int idx = idx2dindex(addr.can_ifindex, skt[i]);
 
+				/* check interface is available */
 				if (nbytes < 0) {
 					if (errno == ENETDOWN) {
-						fprintf(stderr, "interface down\n");
+						fprintf(stderr, "ERR : interface down\n");
 						continue;
 					}
 					perror("read");
 					return 1;
 				}
 
+				/* check size property */
 				if ((size_t)nbytes == CAN_MTU)
 					maxdlen = CAN_MAX_DLEN;
 				else if ((size_t)nbytes == CANFD_MTU)
@@ -160,6 +162,16 @@ int main(int argc, char *argv[]){
 				char buf[1000] = {0};
 				sprint_long_canframe(buf, &frame, view, maxdlen);
 				printf("recv : %s\n",buf);
+
+				// regist
+				CanInfoStorage strg;
+				CanInfo caninfo;
+				caninfo.id = frame.can_id;
+				caninfo.dlc = frame.len;
+				caninfo.kind = strg.get_cankind(frame.can_id);
+				strg.regist_canid(caninfo);
+
+
 			}
 			fflush(stdout);
 		}

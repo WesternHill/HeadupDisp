@@ -18,6 +18,7 @@ using namespace std;
 typedef unsigned int canid_t;
 
 typedef enum e_can_kind_t{
+	UNDEFINED,
 	ENGINE_REV,
 	FUEL,
 	BLINKER,
@@ -32,12 +33,12 @@ typedef struct struct_CanInfo{
 class CanInfoStorage{
 public:
 	void regist_canid(CanInfo caninfo);
-	void get_canid(can_kind_t key);
+	canid_t get_canid(can_kind_t key);
 	can_kind_t get_cankind(canid_t canid);
 
 private:
-	map<can_kind_t,CanInfo> can_storage;
-	map<canid_t,CanInfo> canid_storage;
+	map<canid_t,CanInfo> can_storage;
+	map<canid_t,can_kind_t> can_kind_descripter;
 };
 
 
