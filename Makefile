@@ -1,10 +1,24 @@
-CC=gcc
-CFLAGS=-I.
-DEPS = disp.hpp
-OBJ = disp.o tester.o 
+CC		= gcc
+#CC=  #CROSS COMPILATION
+GXX		= g++
+#GXX= #CROSS COMPILATION
+CFLAGS	= -g -Wall
+DEPS	= disp.hpp
+LDFLAGS = 
+INCLUDE	= -I./include -I/Users/tetsurou/Qt/5.7/Src/qtbase/include
+SRCDIR	= ./src
+SOURCES = $(wildcard $(SRCDIR)/*.cpp)
+OBJDIR  = ./obj
+OBJ		= $(addprefix $(OBJDIR)/, $(notdir $(SOURCES:.cpp=.o))) 
 
-%.o: %.c $(DEPS)
-	$(CC) -c -o $@ $< $(CFLAGS)
+$(OBJDIR)/%.o: $(SRCDIR)/%.cpp
+	-mkdir -p $(OBJDIR)
+	$(GXX) $(CFLAGS) $(INCLUDE) -o $@ -c $<
 
-tester: $(OBJ)
-	gcc -o $@ $^ $(CFLAGS)
+all: headupdisp
+
+headupdisp: $(OBJ)
+	g++ -o $@ $^ $(CFLAGS)
+	
+clean: 
+	rm -f $(OBJ)
