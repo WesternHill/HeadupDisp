@@ -5,7 +5,7 @@
  *      Author: tetsurou
  */
 
-#include <QApplication>
+#include <QtWidgets/QApplication>
 #include <QLabel>
 #include <QFont>
 
