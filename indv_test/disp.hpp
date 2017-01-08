@@ -14,10 +14,13 @@ typedef struct struct_meter_contents{
 }MeterContents;
 
 class Display{
-
-void show_meter(MeterContents src);
-void set_fullscreen(void);
-
+public:
+  Display(int,char**);
+  void show_meter(MeterContents *src);
+  void set_fullscreen(void);
+private:
+  //QApplication *app;
+  QLabel *spdlabel;
 };
 
 #endif /* INDV_TEST_DISP_HPP_ */
