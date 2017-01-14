@@ -5,39 +5,42 @@
  *      Author: tetsurou
  */
 
+#include <sstream>
+#include <iostream>
 #include <QApplication>
 #include <QLabel>
 #include <QFont>
 
-#include "disp.hpp"
 
-QLabel spdlabel;
+#include "disp.hpp"
 
 using namespace std;
 
-Display::Display(int argc,char **argv){
-	QApplication app(argc,argv);
-	spdlabel = new QLabel("init");
-	label->setfont(QFont("Times", 40, QFont::Bold));
-
-	return app.exec();
+Display::Display(int argc,char **argv)
+{
+  spdlabel = new QLabel("init");
+  spdlabel->setFont(QFont("Times", 40, QFont::Bold));
 }
 
 /**
  *
  */
-void Display::show_meter(MeterContents src)
+void Display::show_meter(MeterContents *src)
 {
-	String str_kph = new String(src.kph);
-	QString qstr_kph = QString::fromStdString(std_kph);
-	label->setText(qstr_kph);
-	label->show();
+  ostringstream strs;
+  strs << src->kph;
+  QString qstr_kph = QString::fromStdString(strs.str());
+  spdlabel->setText(qstr_kph);
+  spdlabel->show();
 }
 
+/**
+ * 
+ */
 void Display::set_fullscreen(void)
 {
-	MyWidget *widget = new MyWidget(this);
-	widget->setGeometry((QApplication::desktop()->screenGeometry(0)));
-	widget->showFullScreen();
+  //	MyWidget *widget = new MyWidget(this);
+  //	widget->setGeometry((QApplication::desktop()->screenGeometry(0)));
+  //	widget->showFullScreen();
 }
 

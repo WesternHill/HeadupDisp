@@ -8,16 +8,21 @@
 #ifndef INDV_TEST_DISP_HPP_
 #define INDV_TEST_DISP_HPP_
 
+#include <QtGui>
+
 typedef struct struct_meter_contents{
 	double kph;
 
 }MeterContents;
 
-class Display{
-
-void show_meter(MeterContents src);
-void set_fullscreen(void);
-
+class Display : public QMainWindow{
+public:
+  Display(int,char**);
+  void show_meter(MeterContents *src);
+  void set_fullscreen(void);
+private:
+  //QApplication *app;
+  QLabel *spdlabel;
 };
 
 #endif /* INDV_TEST_DISP_HPP_ */
