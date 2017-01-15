@@ -12,13 +12,13 @@ MAKEFILE      = Makefile
 
 CC            = gcc
 CXX           = g++
-DEFINES       = -DQT_NO_DEBUG -DQT_WIDGETS_LIB -DQT_GUI_LIB -DQT_CORE_LIB
+DEFINES       = -DQT_NO_DEBUG -DQT_GUI_LIB -DQT_CORE_LIB
 CFLAGS        = -pipe -O2 -Wall -W -D_REENTRANT -fPIE $(DEFINES)
 CXXFLAGS      = -pipe -O2 -Wall -W -D_REENTRANT -fPIE $(DEFINES)
-INCPATH       = -I/usr/lib/arm-linux-gnueabihf/qt5/mkspecs/linux-g++ -I. -I. -isystem /usr/include/arm-linux-gnueabihf/qt5 -isystem /usr/include/arm-linux-gnueabihf/qt5/QtWidgets -isystem /usr/include/arm-linux-gnueabihf/qt5/QtGui -isystem /usr/include/arm-linux-gnueabihf/qt5/QtCore -I.
+INCPATH       = -I/usr/lib/arm-linux-gnueabihf/qt5/mkspecs/linux-g++ -I. -I. -I/usr/lib/arm-linux-gnueabihf/qt5/mkspecs/linux-g++ -isystem /usr/include/arm-linux-gnueabihf/qt5 -isystem /usr/include/arm-linux-gnueabihf/qt5/QtWidgets -isystem /usr/include/arm-linux-gnueabihf/qt5/QtGui -isystem /usr/include/arm-linux-gnueabihf/qt5/QtCore -isystem /usr/include/arm-linux-gnueabihf/qt5/QtGui -I.
 LINK          = g++
 LFLAGS        = -Wl,-O1
-LIBS          = $(SUBLIBS) -lQt5Widgets -lQt5Gui -lQt5Core -lGLESv2 -lpthread 
+LIBS          = $(SUBLIBS) -lQt5Gui -lQt5Core -lGLESv2 -lpthread -lQt5Widgets
 AR            = ar cqs
 RANLIB        = 
 QMAKE         = /usr/lib/arm-linux-gnueabihf/qt5/bin/qmake
@@ -97,7 +97,6 @@ DIST          = /usr/lib/arm-linux-gnueabihf/qt5/mkspecs/features/spec_pre.prf \
 		/usr/lib/arm-linux-gnueabihf/qt5/mkspecs/features/resources.prf \
 		/usr/lib/arm-linux-gnueabihf/qt5/mkspecs/features/moc.prf \
 		/usr/lib/arm-linux-gnueabihf/qt5/mkspecs/features/unix/opengl.prf \
-		/usr/lib/arm-linux-gnueabihf/qt5/mkspecs/features/uic.prf \
 		/usr/lib/arm-linux-gnueabihf/qt5/mkspecs/features/unix/thread.prf \
 		/usr/lib/arm-linux-gnueabihf/qt5/mkspecs/features/testcase_targets.prf \
 		/usr/lib/arm-linux-gnueabihf/qt5/mkspecs/features/exceptions.prf \
@@ -185,14 +184,12 @@ Makefile: indv_test.pro /usr/lib/arm-linux-gnueabihf/qt5/mkspecs/linux-g++/qmake
 		/usr/lib/arm-linux-gnueabihf/qt5/mkspecs/features/resources.prf \
 		/usr/lib/arm-linux-gnueabihf/qt5/mkspecs/features/moc.prf \
 		/usr/lib/arm-linux-gnueabihf/qt5/mkspecs/features/unix/opengl.prf \
-		/usr/lib/arm-linux-gnueabihf/qt5/mkspecs/features/uic.prf \
 		/usr/lib/arm-linux-gnueabihf/qt5/mkspecs/features/unix/thread.prf \
 		/usr/lib/arm-linux-gnueabihf/qt5/mkspecs/features/testcase_targets.prf \
 		/usr/lib/arm-linux-gnueabihf/qt5/mkspecs/features/exceptions.prf \
 		/usr/lib/arm-linux-gnueabihf/qt5/mkspecs/features/yacc.prf \
 		/usr/lib/arm-linux-gnueabihf/qt5/mkspecs/features/lex.prf \
 		indv_test.pro \
-		/usr/lib/arm-linux-gnueabihf/libQt5Widgets.prl \
 		/usr/lib/arm-linux-gnueabihf/libQt5Gui.prl \
 		/usr/lib/arm-linux-gnueabihf/libQt5Core.prl
 	$(QMAKE) -o Makefile indv_test.pro
@@ -244,14 +241,12 @@ Makefile: indv_test.pro /usr/lib/arm-linux-gnueabihf/qt5/mkspecs/linux-g++/qmake
 /usr/lib/arm-linux-gnueabihf/qt5/mkspecs/features/resources.prf:
 /usr/lib/arm-linux-gnueabihf/qt5/mkspecs/features/moc.prf:
 /usr/lib/arm-linux-gnueabihf/qt5/mkspecs/features/unix/opengl.prf:
-/usr/lib/arm-linux-gnueabihf/qt5/mkspecs/features/uic.prf:
 /usr/lib/arm-linux-gnueabihf/qt5/mkspecs/features/unix/thread.prf:
 /usr/lib/arm-linux-gnueabihf/qt5/mkspecs/features/testcase_targets.prf:
 /usr/lib/arm-linux-gnueabihf/qt5/mkspecs/features/exceptions.prf:
 /usr/lib/arm-linux-gnueabihf/qt5/mkspecs/features/yacc.prf:
 /usr/lib/arm-linux-gnueabihf/qt5/mkspecs/features/lex.prf:
 indv_test.pro:
-/usr/lib/arm-linux-gnueabihf/libQt5Widgets.prl:
 /usr/lib/arm-linux-gnueabihf/libQt5Gui.prl:
 /usr/lib/arm-linux-gnueabihf/libQt5Core.prl:
 qmake: FORCE
@@ -288,8 +283,6 @@ compiler_moc_header_make_all:
 compiler_moc_header_clean:
 compiler_moc_source_make_all:
 compiler_moc_source_clean:
-compiler_uic_make_all:
-compiler_uic_clean:
 compiler_yacc_decl_make_all:
 compiler_yacc_decl_clean:
 compiler_yacc_impl_make_all:

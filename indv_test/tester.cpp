@@ -22,7 +22,7 @@ int main(int argc,char **argv)
   //  disp.show_meter(&data);
   
   while(1){
-    sleep(1);
+	sleep(1);
     data.kph = 10;
     if(data.kph > 180){
       data.kph=0;
@@ -30,10 +30,12 @@ int main(int argc,char **argv)
     }else{
       data.kph+=10;
     }
+    cout << "showing kph:" << data.kph << endl;
     disp.show_meter(&data);
     disp.set_fullscreen();
+    sleep(1);
+    break;
   }
-  
 
   return app.exec();
 }
