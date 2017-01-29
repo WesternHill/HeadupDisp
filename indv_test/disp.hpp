@@ -10,21 +10,29 @@
 
 #include <QtWidgets>
 
-typedef struct struct_meter_contents{
+class MeterContents{
+public:
 	double kph;
 
-}MeterContents;
+	MeterContents& operator=(const MeterContents &arg){
+		kph = arg.kph;
+		return *this;
+	}
+};
 
-class Display : public QMainWindow
+class MeterWidget : public QWidget
 {
 public:
-  Display(int,char**);
-  void show_meter(MeterContents *src);
+	MeterWidget(int,char**);
+  void show_meter(void);
   void set_fullscreen(void);
+  void set_contents(MeterContents *src);
 
 private:
   QWidget *window;
+  QApplication *app;
   QLabel *spdlabel;
+  MeterContents *showing;
 };
 
 #endif /* INDV_TEST_DISP_HPP_ */
