@@ -46,8 +46,15 @@ void* MeterController::start_main_loop(void *args)
 }
 
 void MeterController::main_loop(void){
+	//set up
+	char *devname="can0";
+	struct sockaddr_can addr;
+	addr.can_family = AF_CAN;
+
+	get_candev(devname,addr);
+
 	while(1){
-		// FUNC: receive CAN (block)
+		read_can();
 		cout << "CAN received" << endl;
 		// FUNC: convert to MeterContents-type
 	    pthread_mutex_lock(&(this->thrd_mutex));   // Block until get priority-right, then lock
@@ -67,7 +74,3 @@ void MeterController::get_MeterContents(MeterContents *mc)
     pthread_mutex_unlock(&(this->thrd_mutex)); // Unlock
 
 }
-
-
-
-
