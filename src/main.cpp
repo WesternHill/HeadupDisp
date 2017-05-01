@@ -72,6 +72,7 @@ int main(int argc, char *argv[]){
 	int sktidx = 0;
 	int running = 1;
 	int maxdlen = 0;
+	char devnum[50]={'\0'};
 
 	/* these settings are static and can be held out of the hot path */
 	iov.iov_base = &frame;
@@ -88,22 +89,7 @@ int main(int argc, char *argv[]){
 		return 1;
 	}
 
-	/* Read specified can-dev name */
-	char *devname = argv[optind];
-	int devname_len = strlen(devname); /* no ',' found => no filter definitions */
-	struct ifreq ifr;
-	memset(&ifr.ifr_name, 0, sizeof(ifr.ifr_name));
-	strncpy(ifr.ifr_name, devname, devname_len);
-	if (strcmp("any", ifr.ifr_name)) {
-		if (ioctl(skt[sktidx], SIOCGIFINDEX, &ifr) < 0) { //Retrieve the interface index of the interface into ifr_ifindex
-			perror("SIOCGIFINDEX");
-		}else{
-			printf("dev:%s(%d)\n",ifr.ifr_name,ifr.ifr_ifindex);
-		}
-		addr.can_ifindex = ifr.ifr_ifindex;
-	} else{
-		addr.can_ifindex = 0; /* any can interface */
-	}
+	get_candev(devnum,&addr);
 
 	if (bind(skt[sktidx], (struct sockaddr *)&addr, sizeof(addr)) < 0) {
 		perror("bind");
