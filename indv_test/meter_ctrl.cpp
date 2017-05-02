@@ -10,6 +10,8 @@
 
 #include "../indv_test/meter_ctrl.hpp"
 #include "disp.hpp"
+#include "can.hpp"
+
 
 using namespace std;
 
