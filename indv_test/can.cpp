@@ -4,9 +4,11 @@
  *  Created on: Apr 2, 2017
  *      Author: tetsurou
  */
+#include "../include/lib.h"
+#include "../include/can.h"
+
 #include "can.hpp"
-#include "lib.h"
-#include "can.h"
+#include "storage.hpp"
 
 #define MAXSOCK 2
 
@@ -14,12 +16,17 @@ static int skt[MAXSOCK] = {0};
 static int sktidx = 0;
 struct ifreq ifr;
 
-void CanContoller::get_candev(char *devname,struct sockaddr_can *addr){
+/**
+* Func: Get device index and enter into sockaddr_can
+* Arg:
+*/
+int CanController::get_candev(const char *devname,struct sockaddr_can *addr){
 	/* check parameters*/
 	if((NULL != devname) && (NULL != addr)){
 		printf("devname=%s\n",devname);
 	}else{
 		assert(false && "Null passed to get_candev"); // Illegal parameters
+		return -1;
 	}
 
 	/* Read specified can-dev name */
@@ -27,9 +34,10 @@ void CanContoller::get_candev(char *devname,struct sockaddr_can *addr){
 	memset(&ifr.ifr_name, 0, sizeof(ifr.ifr_name));
 	strncpy(ifr.ifr_name, devname, devname_len);
 
-	if (strcmp("any", ifr.ifr_name)) {
-		if (ioctl(skt[sktidx], SIOCGIFINDEX, &ifr) < 0) { //Retrieve the interface index of the interface into ifr_ifindex
+	if (0 == strcmp("any", ifr.ifr_name)) {
+		if ((ioctl(skt[sktidx], SIOCGIFINDEX, &ifr) < 0)) { //Retrieve the interface index of the interface into ifr_ifindex
 			perror("SIOCGIFINDEX");
+			return -1;
 		}else{
 			printf("dev:%s(%d)\n",ifr.ifr_name,ifr.ifr_ifindex);
 		}
@@ -37,13 +45,40 @@ void CanContoller::get_candev(char *devname,struct sockaddr_can *addr){
 	} else{
 		addr->can_ifindex = 0; /* any can interface */
 	}
+
+	return 0;
 }
 
-int CanContoller::read_can(char *devname){
+/**
+*
+*
+*/
+int CanController::rdy_recv_can(const char *devname,struct sockaddr_can *addr,){
+	int socketid = 0;
+	get_candev(devname,addr);
+
+	addr.can_family = AF_CAN;
+
+	skt[sktidx] = socket(PF_CAN, SOCK_RAW, CAN_RAW);
+	if (skt[sktidx] < 0) {
+		perror("socket");
+		return 1;
+	}else{}
+
+	if ((bind(skt[sktidx], (struct sockaddr *)&addr, sizeof(addr)) < 0)) {
+		perror("bind");
+		return 1;
+	}else{}
+
+	#ifdef DEBUG
+	printf("[DBG] Now on ready for recv can with %s¥n",devname);
+	#endif
+}
+
+int CanController::read_can(const char *devname,){
 	fd_set rdfs;
 	struct msghdr msg;
 	struct sockaddr_can addr;
-	struct iovec iov;
 	struct canfd_frame frame;
 	struct timeval *timeout_current = NULL;
 	char ctrlmsg[CMSG_SPACE(sizeof(struct timeval)) + CMSG_SPACE(sizeof(__u32))];
@@ -67,7 +102,7 @@ int CanContoller::read_can(char *devname){
 		return 1;
 	}
 
-	if (bind(skt[sktidx], (struct sockaddr *)&addr, sizeof(addr)) < 0) {
+	if ((bind(skt[sktidx], (struct sockaddr *)&addr, sizeof(addr)) < 0)) {
 		perror("bind");
 		return 1;
 	}else{
@@ -107,7 +142,7 @@ int CanContoller::read_can(char *devname){
 						continue;
 					}
 					perror("read");
-					return 1;
+					return -1;
 				}
 
 				/* check size property */
@@ -117,7 +152,7 @@ int CanContoller::read_can(char *devname){
 					maxdlen = CANFD_MAX_DLEN;
 				else {
 					fprintf(stderr, "read: incomplete CAN frame\n");
-					return 1;
+					return -1;
 				}
 
 				int view = 0x0;

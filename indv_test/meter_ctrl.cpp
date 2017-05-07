@@ -8,9 +8,13 @@
 #include <iostream>
 #include <stdio.h>
 
-#include "../indv_test/meter_ctrl.hpp"
+#include "../include/can.h"
+#include "../include/type.hpp"
+
+#include "meter_ctrl.hpp"
 #include "disp.hpp"
 #include "can.hpp"
+
 
 
 using namespace std;
@@ -49,14 +53,24 @@ void* MeterController::start_main_loop(void *args)
 
 void MeterController::main_loop(void){
 	//set up
-	char *devname="can0";
+	CanController *canctrl = new CanController;
+	const char *devname="can0";
 	struct sockaddr_can addr;
 	addr.can_family = AF_CAN;
 
-	get_candev(devname,addr);
+	canctrl->rdy_recv_can();
+	// if(0 > canctrl->get_candev(devname,&addr)){
+	// 	fprintf(stderr,"[ERR] Resolve device %s failed.¥n",devname);
+	// 	return;
+	// }
 
 	while(1){
-		read_can();
+		int ret = canctrl->read_can(devname);
+		if(0 > ret){
+				fprintf(stderr,"[ERR] read_can halt with err.¥n");
+				return ;
+		}
+
 		cout << "CAN received" << endl;
 		// FUNC: convert to MeterContents-type
 	    pthread_mutex_lock(&(this->thrd_mutex));   // Block until get priority-right, then lock
