@@ -23,6 +23,8 @@ class CanController
 public:
 	int get_candev(const char *devname,struct sockaddr_can *addr);
 	int read_can(const char *devname);
+	int rdy_recv_can(const char *devname,struct sockaddr_can *addr);
+
 private:
 };
 
