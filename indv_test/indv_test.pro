@@ -7,6 +7,8 @@ TARGET = indv_test
 INCLUDEPATH += .
 INCLUDEPATH += ../include/
 
+QT += widgets
+
 # Input
 HEADERS += can.hpp \
            disp.hpp \

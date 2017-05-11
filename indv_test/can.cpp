@@ -53,11 +53,11 @@ int CanController::get_candev(const char *devname,struct sockaddr_can *addr){
 *
 *
 */
-int CanController::rdy_recv_can(const char *devname,struct sockaddr_can *addr,){
+int CanController::rdy_recv_can(const char *devname,struct sockaddr_can *addr){
 	int socketid = 0;
 	get_candev(devname,addr);
 
-	addr.can_family = AF_CAN;
+	addr->can_family = AF_CAN;
 
 	skt[sktidx] = socket(PF_CAN, SOCK_RAW, CAN_RAW);
 	if (skt[sktidx] < 0) {
@@ -65,7 +65,7 @@ int CanController::rdy_recv_can(const char *devname,struct sockaddr_can *addr,){
 		return 1;
 	}else{}
 
-	if ((bind(skt[sktidx], (struct sockaddr *)&addr, sizeof(addr)) < 0)) {
+	if ((bind(skt[sktidx], (struct sockaddr *)addr, sizeof(*addr)) < 0)) {
 		perror("bind");
 		return 1;
 	}else{}
@@ -73,10 +73,13 @@ int CanController::rdy_recv_can(const char *devname,struct sockaddr_can *addr,){
 	#ifdef DEBUG
 	printf("[DBG] Now on ready for recv can with %s¥n",devname);
 	#endif
+
+	return 0;
 }
 
-int CanController::read_can(const char *devname,){
+int CanController::read_can(const char *devname){
 	fd_set rdfs;
+	struct iovec iov;
 	struct msghdr msg;
 	struct sockaddr_can addr;
 	struct canfd_frame frame;
@@ -171,4 +174,5 @@ int CanController::read_can(const char *devname,){
 			fflush(stdout);
 		}
 	}
+	return 0;
 }

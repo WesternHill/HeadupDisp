@@ -58,7 +58,7 @@ void MeterController::main_loop(void){
 	struct sockaddr_can addr;
 	addr.can_family = AF_CAN;
 
-	canctrl->rdy_recv_can();
+	canctrl->rdy_recv_can(devname,&addr);
 	// if(0 > canctrl->get_candev(devname,&addr)){
 	// 	fprintf(stderr,"[ERR] Resolve device %s failed.¥n",devname);
 	// 	return;
