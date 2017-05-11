@@ -12,13 +12,13 @@ MAKEFILE      = Makefile
 
 CC            = gcc
 CXX           = g++
-DEFINES       = -DQT_NO_DEBUG -DQT_GUI_LIB -DQT_CORE_LIB
+DEFINES       = -DQT_NO_DEBUG -DQT_WIDGETS_LIB -DQT_GUI_LIB -DQT_CORE_LIB
 CFLAGS        = -pipe -O2 -Wall -W -D_REENTRANT -fPIE $(DEFINES)
 CXXFLAGS      = -pipe -O2 -Wall -W -D_REENTRANT -fPIE $(DEFINES)
-INCPATH       = -I/usr/lib/arm-linux-gnueabihf/qt5/mkspecs/linux-g++ -I. -I. -I/usr/lib/arm-linux-gnueabihf/qt5/mkspecs/linux-g++ -isystem /usr/include/arm-linux-gnueabihf/qt5 -isystem /usr/include/arm-linux-gnueabihf/qt5/QtWidgets -isystem /usr/include/arm-linux-gnueabihf/qt5/QtGui -isystem /usr/include/arm-linux-gnueabihf/qt5/QtCore -isystem /usr/include/arm-linux-gnueabihf/qt5/QtGui -I.
+INCPATH       = -I/usr/lib/arm-linux-gnueabihf/qt5/mkspecs/linux-g++ -I. -I. -I../include -isystem /usr/include/arm-linux-gnueabihf/qt5 -isystem /usr/include/arm-linux-gnueabihf/qt5/QtWidgets -isystem /usr/include/arm-linux-gnueabihf/qt5/QtGui -isystem /usr/include/arm-linux-gnueabihf/qt5/QtCore -I.
 LINK          = g++
 LFLAGS        = -Wl,-O1
-LIBS          = $(SUBLIBS) -lQt5Gui -lQt5Core -lGLESv2 -lpthread -lQt5Widgets
+LIBS          = $(SUBLIBS) -lQt5Widgets -lQt5Gui -lQt5Core -lGLESv2 -lpthread 
 AR            = ar cqs
 RANLIB        = 
 QMAKE         = /usr/lib/arm-linux-gnueabihf/qt5/bin/qmake
@@ -45,9 +45,17 @@ OBJECTS_DIR   = ./
 
 ####### Files
 
-SOURCES       = disp.cpp \
+SOURCES       = can.cpp \
+		disp.cpp \
+		lib.c \
+		meter_ctrl.cpp \
+		storage.cpp \
 		tester.cpp 
-OBJECTS       = disp.o \
+OBJECTS       = can.o \
+		disp.o \
+		lib.o \
+		meter_ctrl.o \
+		storage.o \
 		tester.o
 DIST          = /usr/lib/arm-linux-gnueabihf/qt5/mkspecs/features/spec_pre.prf \
 		/usr/lib/arm-linux-gnueabihf/qt5/mkspecs/common/shell-unix.conf \
@@ -97,12 +105,17 @@ DIST          = /usr/lib/arm-linux-gnueabihf/qt5/mkspecs/features/spec_pre.prf \
 		/usr/lib/arm-linux-gnueabihf/qt5/mkspecs/features/resources.prf \
 		/usr/lib/arm-linux-gnueabihf/qt5/mkspecs/features/moc.prf \
 		/usr/lib/arm-linux-gnueabihf/qt5/mkspecs/features/unix/opengl.prf \
+		/usr/lib/arm-linux-gnueabihf/qt5/mkspecs/features/uic.prf \
 		/usr/lib/arm-linux-gnueabihf/qt5/mkspecs/features/unix/thread.prf \
 		/usr/lib/arm-linux-gnueabihf/qt5/mkspecs/features/testcase_targets.prf \
 		/usr/lib/arm-linux-gnueabihf/qt5/mkspecs/features/exceptions.prf \
 		/usr/lib/arm-linux-gnueabihf/qt5/mkspecs/features/yacc.prf \
 		/usr/lib/arm-linux-gnueabihf/qt5/mkspecs/features/lex.prf \
-		indv_test.pro disp.cpp \
+		indv_test.pro can.cpp \
+		disp.cpp \
+		lib.c \
+		meter_ctrl.cpp \
+		storage.cpp \
 		tester.cpp
 QMAKE_TARGET  = indv_test
 DESTDIR       = #avoid trailing-slash linebreak
@@ -184,12 +197,14 @@ Makefile: indv_test.pro /usr/lib/arm-linux-gnueabihf/qt5/mkspecs/linux-g++/qmake
 		/usr/lib/arm-linux-gnueabihf/qt5/mkspecs/features/resources.prf \
 		/usr/lib/arm-linux-gnueabihf/qt5/mkspecs/features/moc.prf \
 		/usr/lib/arm-linux-gnueabihf/qt5/mkspecs/features/unix/opengl.prf \
+		/usr/lib/arm-linux-gnueabihf/qt5/mkspecs/features/uic.prf \
 		/usr/lib/arm-linux-gnueabihf/qt5/mkspecs/features/unix/thread.prf \
 		/usr/lib/arm-linux-gnueabihf/qt5/mkspecs/features/testcase_targets.prf \
 		/usr/lib/arm-linux-gnueabihf/qt5/mkspecs/features/exceptions.prf \
 		/usr/lib/arm-linux-gnueabihf/qt5/mkspecs/features/yacc.prf \
 		/usr/lib/arm-linux-gnueabihf/qt5/mkspecs/features/lex.prf \
 		indv_test.pro \
+		/usr/lib/arm-linux-gnueabihf/libQt5Widgets.prl \
 		/usr/lib/arm-linux-gnueabihf/libQt5Gui.prl \
 		/usr/lib/arm-linux-gnueabihf/libQt5Core.prl
 	$(QMAKE) -o Makefile indv_test.pro
@@ -241,12 +256,14 @@ Makefile: indv_test.pro /usr/lib/arm-linux-gnueabihf/qt5/mkspecs/linux-g++/qmake
 /usr/lib/arm-linux-gnueabihf/qt5/mkspecs/features/resources.prf:
 /usr/lib/arm-linux-gnueabihf/qt5/mkspecs/features/moc.prf:
 /usr/lib/arm-linux-gnueabihf/qt5/mkspecs/features/unix/opengl.prf:
+/usr/lib/arm-linux-gnueabihf/qt5/mkspecs/features/uic.prf:
 /usr/lib/arm-linux-gnueabihf/qt5/mkspecs/features/unix/thread.prf:
 /usr/lib/arm-linux-gnueabihf/qt5/mkspecs/features/testcase_targets.prf:
 /usr/lib/arm-linux-gnueabihf/qt5/mkspecs/features/exceptions.prf:
 /usr/lib/arm-linux-gnueabihf/qt5/mkspecs/features/yacc.prf:
 /usr/lib/arm-linux-gnueabihf/qt5/mkspecs/features/lex.prf:
 indv_test.pro:
+/usr/lib/arm-linux-gnueabihf/libQt5Widgets.prl:
 /usr/lib/arm-linux-gnueabihf/libQt5Gui.prl:
 /usr/lib/arm-linux-gnueabihf/libQt5Core.prl:
 qmake: FORCE
@@ -256,7 +273,7 @@ qmake_all: FORCE
 
 dist: 
 	@test -d .tmp/indv_test1.0.0 || mkdir -p .tmp/indv_test1.0.0
-	$(COPY_FILE) --parents $(DIST) .tmp/indv_test1.0.0/ && $(COPY_FILE) --parents disp.hpp .tmp/indv_test1.0.0/ && $(COPY_FILE) --parents disp.cpp tester.cpp .tmp/indv_test1.0.0/ && (cd `dirname .tmp/indv_test1.0.0` && $(TAR) indv_test1.0.0.tar indv_test1.0.0 && $(COMPRESS) indv_test1.0.0.tar) && $(MOVE) `dirname .tmp/indv_test1.0.0`/indv_test1.0.0.tar.gz . && $(DEL_FILE) -r .tmp/indv_test1.0.0
+	$(COPY_FILE) --parents $(DIST) .tmp/indv_test1.0.0/ && $(COPY_FILE) --parents can.hpp disp.hpp meter_ctrl.hpp storage.hpp ../include/lib.h ../include/can.h ../can/error.h ../include/type.hpp .tmp/indv_test1.0.0/ && $(COPY_FILE) --parents can.cpp disp.cpp lib.c meter_ctrl.cpp storage.cpp tester.cpp .tmp/indv_test1.0.0/ && (cd `dirname .tmp/indv_test1.0.0` && $(TAR) indv_test1.0.0.tar indv_test1.0.0 && $(COMPRESS) indv_test1.0.0.tar) && $(MOVE) `dirname .tmp/indv_test1.0.0`/indv_test1.0.0.tar.gz . && $(DEL_FILE) -r .tmp/indv_test1.0.0
 
 
 clean:compiler_clean 
@@ -283,6 +300,8 @@ compiler_moc_header_make_all:
 compiler_moc_header_clean:
 compiler_moc_source_make_all:
 compiler_moc_source_clean:
+compiler_uic_make_all:
+compiler_uic_clean:
 compiler_yacc_decl_make_all:
 compiler_yacc_decl_clean:
 compiler_yacc_impl_make_all:
@@ -293,10 +312,32 @@ compiler_clean:
 
 ####### Compile
 
+can.o: can.cpp ../include/lib.h \
+		../include/can.h \
+		can.hpp \
+		storage.hpp
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o can.o can.cpp
+
 disp.o: disp.cpp disp.hpp
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o disp.o disp.cpp
 
-tester.o: tester.cpp disp.hpp
+lib.o: lib.c ../can/error.h \
+		../include/can.h \
+		../include/lib.h
+	$(CC) -c $(CFLAGS) $(INCPATH) -o lib.o lib.c
+
+meter_ctrl.o: meter_ctrl.cpp ../include/can.h \
+		../include/type.hpp \
+		meter_ctrl.hpp \
+		disp.hpp \
+		can.hpp
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o meter_ctrl.o meter_ctrl.cpp
+
+storage.o: storage.cpp storage.hpp
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o storage.o storage.cpp
+
+tester.o: tester.cpp meter_ctrl.hpp \
+		disp.hpp
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o tester.o tester.cpp
 
 ####### Install
