@@ -54,7 +54,7 @@ void* MeterController::start_main_loop(void *args)
 void MeterController::main_loop(void){
 	//set up
 	CanController *canctrl = new CanController;
-	const char *devname="can0";
+	const char *devname="vcan0";
 	struct sockaddr_can addr;
 	addr.can_family = AF_CAN;
 
