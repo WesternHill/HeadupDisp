@@ -22,6 +22,7 @@ typedef enum e_can_kind_t{
 	ENGINE_REV,
 	FUEL,
 	BLINKER,
+	SPD
 }can_kind_t;
 
 typedef struct struct_CanInfo{

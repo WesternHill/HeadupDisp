@@ -98,20 +98,6 @@ int CanController::read_can(const char *devname){
 
 	addr.can_family = AF_CAN;
 
-
-	skt[sktidx] = socket(PF_CAN, SOCK_RAW, CAN_RAW);
-	if (skt[sktidx] < 0) {
-		perror("skt");
-		return 1;
-	}
-
-	if ((bind(skt[sktidx], (struct sockaddr *)&addr, sizeof(addr)) < 0)) {
-		perror("bind");
-		return 1;
-	}else{
-		printf("binding socket : OK\n");
-	}
-
 	while (1 == running) {
 
 		FD_ZERO(&rdfs);
@@ -163,6 +149,9 @@ int CanController::read_can(const char *devname){
 				sprint_long_canframe(buf, &frame, view, maxdlen);
 				printf("recv : %s\n",buf);
 
+				// decode
+				decodeSpeed(&frame);
+
 				// regist
 				CanInfoStorage strg;
 				CanInfo caninfo;
@@ -175,4 +164,40 @@ int CanController::read_can(const char *devname){
 		}
 	}
 	return 0;
+}
+
+void CanController::decodeSpeed(struct canfd_frame *frame){
+	int view = 0x0;
+	char buf[1000] = {0};
+	int maxdlen = CAN_MAX_DLEN;
+
+	if(CANID_ENG == frame->can_id){
+		double gasPedal = 0.0;
+		gasPedal = (double)frame->data[4] * (double)(100/255);
+
+		sprint_long_canframe(buf, frame, view, maxdlen);
+		printf("GasPedal=%f,(%s)\n",gasPedal,buf);
+	}
+
+	if(CANID_VDC_ABS == frame->can_id){
+		unsigned int tmp = 0; //should be uint16
+		unsigned int spd = 0;
+
+		tmp = (unsigned int)frame->data[3];
+		tmp << 8;
+		tmp &= (unsigned int)frame->data[4];
+
+		spd = (unsigned int)((double)tmp * 0.05625); //unit : km/h
+
+		sprint_long_canframe(buf, frame, view, maxdlen);
+		printf("Spd = %f,(%s)\n",spd,buf);
+	}
+
+	if(CANID_GEAR == frame->can_id){
+		char gear = 0;
+		gear = (char)frame->data[4];
+
+		sprint_long_canframe(buf, frame, view, maxdlen);
+		printf("GearPos = %d,(%s)\n",gear,buf);
+	}
 }

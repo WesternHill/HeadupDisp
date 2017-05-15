@@ -26,6 +26,14 @@ public:
 	int rdy_recv_can(const char *devname,struct sockaddr_can *addr);
 
 private:
+	const canid_t CANID_ENG = 0x410;
+	const canid_t CANID_VDC_ABS = 0x512;
+	const canid_t CANID_GEAR = 0x411;
+
+	void decodeSpeed(struct canfd_frame *frame);
+
 };
+
+
 
 #endif /* SRC_CAN_HPP_ */
