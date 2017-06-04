@@ -18,7 +18,8 @@ CXXFLAGS      = -pipe -O2 -Wall -W -D_REENTRANT -fPIE $(DEFINES)
 INCPATH       = -I/usr/lib/arm-linux-gnueabihf/qt5/mkspecs/linux-g++ -I. -I. -I/usr/lib/arm-linux-gnueabihf/qt5/mkspecs/linux-g++ -isystem /usr/include/arm-linux-gnueabihf/qt5 -isystem /usr/include/arm-linux-gnueabihf/qt5/QtWidgets -isystem /usr/include/arm-linux-gnueabihf/qt5/QtGui -isystem /usr/include/arm-linux-gnueabihf/qt5/QtCore -isystem /usr/include/arm-linux-gnueabihf/qt5/QtGui -I.
 LINK          = g++
 LFLAGS        = -Wl,-O1
-LIBS          = $(SUBLIBS) -lQt5Gui -lQt5Core -lGLESv2 -lpthread -lQt5Widgets
+:q
+:qLIBS          = $(SUBLIBS) -lQt5Gui -lQt5Core -lGLESv2 -lpthread -lQt5Widgets
 AR            = ar cqs
 RANLIB        = 
 QMAKE         = /usr/lib/arm-linux-gnueabihf/qt5/bin/qmake
@@ -46,9 +47,9 @@ OBJECTS_DIR   = ./
 ####### Files
 
 SOURCES       = disp.cpp \
-		tester.cpp 
+		hud_main.cpp 
 OBJECTS       = disp.o \
-		tester.o
+		hud_main.o
 DIST          = /usr/lib/arm-linux-gnueabihf/qt5/mkspecs/features/spec_pre.prf \
 		/usr/lib/arm-linux-gnueabihf/qt5/mkspecs/common/shell-unix.conf \
 		/usr/lib/arm-linux-gnueabihf/qt5/mkspecs/common/unix.conf \
@@ -103,7 +104,7 @@ DIST          = /usr/lib/arm-linux-gnueabihf/qt5/mkspecs/features/spec_pre.prf \
 		/usr/lib/arm-linux-gnueabihf/qt5/mkspecs/features/yacc.prf \
 		/usr/lib/arm-linux-gnueabihf/qt5/mkspecs/features/lex.prf \
 		indv_test.pro disp.cpp \
-		tester.cpp
+		hud_main.cpp
 QMAKE_TARGET  = indv_test
 DESTDIR       = #avoid trailing-slash linebreak
 TARGET        = indv_test
@@ -256,7 +257,7 @@ qmake_all: FORCE
 
 dist: 
 	@test -d .tmp/indv_test1.0.0 || mkdir -p .tmp/indv_test1.0.0
-	$(COPY_FILE) --parents $(DIST) .tmp/indv_test1.0.0/ && $(COPY_FILE) --parents disp.hpp .tmp/indv_test1.0.0/ && $(COPY_FILE) --parents disp.cpp tester.cpp .tmp/indv_test1.0.0/ && (cd `dirname .tmp/indv_test1.0.0` && $(TAR) indv_test1.0.0.tar indv_test1.0.0 && $(COMPRESS) indv_test1.0.0.tar) && $(MOVE) `dirname .tmp/indv_test1.0.0`/indv_test1.0.0.tar.gz . && $(DEL_FILE) -r .tmp/indv_test1.0.0
+	$(COPY_FILE) --parents $(DIST) .tmp/indv_test1.0.0/ && $(COPY_FILE) --parents disp.hpp .tmp/indv_test1.0.0/ && $(COPY_FILE) --parents disp.cpp hud_main.cpp .tmp/indv_test1.0.0/ && (cd `dirname .tmp/indv_test1.0.0` && $(TAR) indv_test1.0.0.tar indv_test1.0.0 && $(COMPRESS) indv_test1.0.0.tar) && $(MOVE) `dirname .tmp/indv_test1.0.0`/indv_test1.0.0.tar.gz . && $(DEL_FILE) -r .tmp/indv_test1.0.0
 
 
 clean:compiler_clean 
@@ -296,8 +297,8 @@ compiler_clean:
 disp.o: disp.cpp disp.hpp
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o disp.o disp.cpp
 
-tester.o: tester.cpp disp.hpp
-	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o tester.o tester.cpp
+hud_main.o: hud_main.cpp disp.hpp
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o hud_main.o hud_main.cpp
 
 ####### Install
 
