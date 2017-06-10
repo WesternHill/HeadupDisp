@@ -7,16 +7,23 @@ TARGET = indv_test
 INCLUDEPATH += .
 INCLUDEPATH += ../include/
 
+
 QT += widgets
 
 # Input
-HEADERS += can.hpp \
-           disp.hpp \
-           meter_ctrl.hpp \
-           storage.hpp \
+HEADERS += ../src/can.hpp \
+           ../src/disp.hpp \
+           ../src/meter_ctrl.hpp \
+           ../src/storage.hpp \
            ../include/lib.h \
-           ../include/can.h \
-           ../can/error.h \
-           ../include/type.hpp
+../include/can.h \
+../include/can/error.h \
+../include/type.hpp
 
-SOURCES += can.cpp disp.cpp lib.c meter_ctrl.cpp storage.cpp tester.cpp
+SOURCES += ../src/can.cpp \
+           ../src/disp.cpp \
+           ../src/lib.c \
+           ../src/meter_ctrl.cpp \
+           ../src/storage.cpp \
+           ../src/tester.cpp
+            

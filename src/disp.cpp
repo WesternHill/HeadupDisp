@@ -5,7 +5,7 @@
  *      Author: tetsurou
  */
 
-#include "../indv_test/disp.hpp"
+#include "disp.hpp"
 
 #include <sstream>
 #include <iostream>

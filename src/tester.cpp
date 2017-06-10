@@ -10,8 +10,8 @@
 #include <QLabel>
 #include <QFont>
 
-#include "../indv_test/meter_ctrl.hpp"
-#include "../indv_test/disp.hpp"
+#include "../src/meter_ctrl.hpp"
+#include "../src/disp.hpp"
 
 using namespace std;
 
