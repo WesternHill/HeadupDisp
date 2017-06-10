@@ -4,6 +4,9 @@
  *  Created on: Apr 2, 2017
  *      Author: tetsurou
  */
+#include <iostream>
+#include <stdlib.h>
+
 #include "../include/lib.h"
 #include "../include/can.h"
 
@@ -176,21 +179,25 @@ void CanController::decodeSpeed(struct canfd_frame *frame){
 		gasPedal = (double)frame->data[4] * (double)(100/255);
 
 		sprint_long_canframe(buf, frame, view, maxdlen);
-		printf("GasPedal=%f,(%s)\n",gasPedal,buf);
+		std::cout << "GasPedal="<<gasPedal << endl;
+
 	}
 
 	if(CANID_VDC_ABS == frame->can_id){
-		unsigned int tmp = 0; //should be uint16
-		unsigned int spd = 0;
+		int spd = 0;
+		char spdtxt[2] = {'\0'};
+		
+		spdtxt[0] = frame->data[3];
+		spdtxt[1] = frame->data[2];
 
-		tmp = (unsigned int)frame->data[3];
-		tmp << 8;
-		tmp &= (unsigned int)frame->data[4];
-
-		spd = (unsigned int)((double)tmp * 0.05625); //unit : km/h
+		spd = strtol(spdtxt,NULL,16);
+		spd *= (double)0.05625; //unit : km/h
 
 		sprint_long_canframe(buf, frame, view, maxdlen);
-		printf("Spd = %f,(%s)\n",spd,buf);
+		printf (" spd=%d hex=%02x%02x orig=%s\n",spd,spdtxt[0],spdtxt[1],buf);
+
+		//		std::cout << "Spd="<<spd << " hex:" << std::hex << spdtxt[0] << std::hex << spdtxt[1] <<" orig="<< buf  << endl;
+
 	}
 
 	if(CANID_GEAR == frame->can_id){
