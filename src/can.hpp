@@ -35,5 +35,4 @@ private:
 };
 
 
-
 #endif /* SRC_CAN_HPP_ */

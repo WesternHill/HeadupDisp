@@ -5,38 +5,65 @@
  *      Author: tetsurou
  */
 
+#include "../indv_test/disp.hpp"
+
+#include <sstream>
 #include <iostream>
 #include <QApplication>
 #include <QLabel>
 #include <QFont>
+#include <QVBoxLayout>
 
-#include "disp.hpp"
 
 using namespace std;
 
-Display::Display(int argc,char **argv){
-	QApplication app(argc,argv);
-	spdlabel = new QLabel("init");
-	spdlabel->setfont(QFont("Times", 40, QFont::Bold));
-
-	return app.exec();
-}
-
-
-void Display::show_meter(const MeterContents *src)
+MeterWidget::MeterWidget(int argc,char **argv)
 {
-	String str_kph = new String(src->kph);
-	QString qstr_kph = QString::fromStdString(std_kph);
-	spdlabel->setText(qstr_kph);
-	spdlabel->show();
+  //app = new QApplication(argc,argv);
+  QVBoxLayout *layout = new QVBoxLayout();
+
+  // configure window
+  this->setGeometry(0, 0, 200, 300);
+  this->setWindowTitle("MeterDisp");
+
+  // configure labels
+  spdlabel = new QLabel("SPD",this);
+  spdlabel->setFont(QFont("Times", 40, QFont::Bold));
+  spdlabel->setAlignment(Qt::AlignVCenter | Qt::AlignHCenter);
+  spdlabel->setGeometry(0,0,300,300);
+  layout->addWidget(spdlabel);
+
+  setLayout(layout);
 }
 
-void Display::set_fullscreen(void)
+void MeterWidget::set_contents(MeterContents *src)
 {
-	MyWidget *widget = new MyWidget(this);
-	widget->setGeometry((QApplication::desktop()->screenGeometry(0)));
-	widget->showFullScreen();
+  if(src == NULL){ return; } // invalid arguments
+
+  *showing = *src;
+
+  // reflesh spdlabel
+  ostringstream strs;
+  strs << showing->kph;
+  QString qstr_kph = QString::fromStdString(strs.str());
+  spdlabel->setText(qstr_kph);
+  spdlabel->show();
+
 }
 
+/**
+ *
+ */
+void MeterWidget::show_meter(void)
+{
+	this->show();
+}
 
-
+/**
+ * 
+ */
+void MeterWidget::set_fullscreen(void)
+{
+  	this->setGeometry((QApplication::desktop()->screenGeometry(0)));
+  	this->showFullScreen();
+}

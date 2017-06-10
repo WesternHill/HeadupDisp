@@ -46,7 +46,7 @@
 #include <stdint.h>
 
 #include <sys/socket.h> /* for sa_family_t */
-#include "can/error.h"
+#include "../can/error.h"
 
 #include "can.h"
 #include "lib.h"

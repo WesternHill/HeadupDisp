@@ -4,21 +4,32 @@
  *  Created on: Jan 1, 2017
  *      Author: tetsurou
  */
-#include "disp.hpp"
+#include <iostream>
+#include <unistd.h>
+#include <QApplication>
+#include <QLabel>
+#include <QFont>
+
+#include "../indv_test/meter_ctrl.hpp"
+#include "../indv_test/disp.hpp"
+
+using namespace std;
 
 int main(int argc,char **argv)
 {
-	Display disp = new Display(argc,argv);
+	QApplication app(argc,argv);
+
+	MeterController *mctrl = new MeterController();
+	MeterWidget disp(argc,argv);
 	MeterContents data;
-	while(1){
-		sleep(1);
-		data.kph = 10;
-		if(data.kph > 180){
-			data.kph=0;
-		}else{
-			data.kph+=10;
-		}
-		disp.show_meter();
-		disp.set_fullscreen();
-	}
+
+	mctrl->start_thread();
+
+	data.kph = 10;
+	cout << "showing kph:" << data.kph << endl;
+	disp.set_fullscreen();
+//	disp.set_contents(&data);
+	disp.show_meter();
+
+	return app.exec();
 }
