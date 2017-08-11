@@ -22,6 +22,13 @@ public:
 
 class MeterWidget : public QWidget
 {
+
+signals:
+	void valueChanged(int value);
+
+public slots:
+	void setValue(int value);
+
 public:
 	MeterWidget(int,char**);
   void show_meter(void);
@@ -33,6 +40,8 @@ private:
   QApplication *app;
   QLabel *spdlabel;
   MeterContents *showing;
+
+	double speed;
 };
 
 #endif /* INDV_TEST_DISP_HPP_ */

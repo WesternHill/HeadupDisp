@@ -48,7 +48,14 @@ void MeterWidget::set_contents(MeterContents *src)
   QString qstr_kph = QString::fromStdString(strs.str());
   spdlabel->setText(qstr_kph);
   spdlabel->show();
+}
 
+void MeterWidget::setValue(double param_spd){
+  if(param_spd == speed){
+    return;
+  }
+  speed = spd;
+  emit valueChanged(speed);
 }
 
 /**
@@ -60,7 +67,7 @@ void MeterWidget::show_meter(void)
 }
 
 /**
- * 
+ *
  */
 void MeterWidget::set_fullscreen(void)
 {

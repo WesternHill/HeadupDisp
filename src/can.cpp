@@ -6,6 +6,7 @@
  */
 #include <iostream>
 #include <stdlib.h>
+#include <stdint.h>
 
 #include "../include/lib.h"
 #include "../include/can.h"
@@ -178,33 +179,32 @@ void CanController::decodeSpeed(struct canfd_frame *frame){
 		double gasPedal = 0.0;
 		gasPedal = (double)frame->data[4] * (double)(100/255);
 
-		sprint_long_canframe(buf, frame, view, maxdlen);
 		std::cout << "GasPedal="<<gasPedal << endl;
 
-	}
-
-	if(CANID_VDC_ABS == frame->can_id){
-		int spd = 0;
+	}else	if(CANID_VDC_ABS == frame->can_id){
+		int16_t spd = 0;
+		double result_spd = 0;
 		char spdtxt[2] = {'\0'};
-		
+
 		spdtxt[0] = frame->data[3];
 		spdtxt[1] = frame->data[2];
 
-		spd = strtol(spdtxt,NULL,16);
-		spd *= (double)0.05625; //unit : km/h
+		spd |= spdtxt[0];
+		spd = spd << 8;
+		spd |= spdtxt[1];
+		result_spd =	(double)spd * (double)0.05625; //unit : km/h
 
 		sprint_long_canframe(buf, frame, view, maxdlen);
-		printf (" spd=%d hex=%02x%02x orig=%s\n",spd,spdtxt[0],spdtxt[1],buf);
+		printf ("[DBG] SPD=%f(%x)kph hex=%02x%02x ",result_spd,result_spd,spdtxt[0],spdtxt[1]);
 
-		//		std::cout << "Spd="<<spd << " hex:" << std::hex << spdtxt[0] << std::hex << spdtxt[1] <<" orig="<< buf  << endl;
-
-	}
-
-	if(CANID_GEAR == frame->can_id){
+	}else if(CANID_GEAR == frame->can_id){
 		char gear = 0;
 		gear = (char)frame->data[4];
 
 		sprint_long_canframe(buf, frame, view, maxdlen);
-		printf("GearPos = %d,(%s)\n",gear,buf);
+		printf("GearPos = %d ",gear);
 	}
+
+	sprint_long_canframe(buf, frame, view, maxdlen);
+	printf(" orig=%s",buf);
 }

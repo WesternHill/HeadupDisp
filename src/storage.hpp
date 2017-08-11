@@ -40,6 +40,8 @@ public:
 private:
 	map<canid_t,CanInfo> can_storage;
 	map<canid_t,can_kind_t> can_kind_descripter;
+
+	double latestSpd;
 };
 
 

@@ -32,6 +32,8 @@ private:
 
 	void decodeSpeed(struct canfd_frame *frame);
 
+	double spped;
+	double tach;
 };
 
 
