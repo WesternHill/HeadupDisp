@@ -7,6 +7,7 @@
 #include <iostream>
 #include <stdlib.h>
 #include <stdint.h>
+#include <assert.h>
 
 #include "../include/lib.h"
 #include "../include/can.h"
@@ -25,6 +26,9 @@ struct ifreq ifr;
 * Arg:
 */
 int CanController::get_candev(const char *devname,struct sockaddr_can *addr){
+	assert(devname!=NULL);
+	assert(addr != NULL);
+
 	/* check parameters*/
 	if((NULL != devname) && (NULL != addr)){
 		printf("devname=%s\n",devname);
@@ -58,6 +62,9 @@ int CanController::get_candev(const char *devname,struct sockaddr_can *addr){
 *
 */
 int CanController::rdy_recv_can(const char *devname,struct sockaddr_can *addr){
+	assert(devname!=NULL);
+	assert(addr != NULL);
+
 	int socketid = 0;
 	get_candev(devname,addr);
 
@@ -82,6 +89,8 @@ int CanController::rdy_recv_can(const char *devname,struct sockaddr_can *addr){
 }
 
 int CanController::read_can(const char *devname){
+	assert(devname!=NULL);
+
 	fd_set rdfs;
 	struct iovec iov;
 	struct msghdr msg;
@@ -171,6 +180,8 @@ int CanController::read_can(const char *devname){
 }
 
 void CanController::decodeSpeed(struct canfd_frame *frame){
+	assert(NULL != frame);
+
 	int view = 0x0;
 	char buf[1000] = {0};
 	int maxdlen = CAN_MAX_DLEN;
