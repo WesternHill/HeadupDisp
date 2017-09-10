@@ -163,7 +163,7 @@ int CanController::read_can(const char *devname){
 				printf("recv : %s\n",buf);
 
 				// decode
-				decodeSpeed(&frame);
+				decode(&frame);
 
 				// regist
 				CanInfoStorage strg;
@@ -179,20 +179,50 @@ int CanController::read_can(const char *devname){
 	return 0;
 }
 
-void CanController::decodeSpeed(struct canfd_frame *frame){
+void CanController::decode(struct canfd_frame *frame){
 	assert(NULL != frame);
 
-	int view = 0x0;
-	char buf[1000] = {0};
-	int maxdlen = CAN_MAX_DLEN;
+	canid_t canid = frame->canid;
+	switch(canid){
+		case CANID_ENG:
+			decodeEng(frame);
+			break;
+		case CANID_VDC_ABC:
+			decodeSpeed(frame);
+			break;
+		case CANID_GEAR:
+			decodeGear(frame);
+			break;
+		default:
+			fprintf(stdout,"Un-suported canid (%x)",frame->canid);
+	}
+}
 
-	if(CANID_ENG == frame->can_id){
-		double gasPedal = 0.0;
-		gasPedal = (double)frame->data[4] * (double)(100/255);
+void CanController::decodeEng(struct canfd_frame *frame){
+	assert(NULL != frame);
+	assert( CANID_ENG == frame->can_id );
 
-		std::cout << "GasPedal="<<gasPedal << endl;
+	double gasPedal = 0.0;
+	gasPedal = (double)frame->data[4] * (double)(100/255);
 
-	}else	if(CANID_VDC_ABS == frame->can_id){
+	std::cout << "GasPedal="<<gasPedal << endl;
+}
+
+void CanController::decodeGear(struct canfd_frame *frame){
+	assert(NULL != frame);
+	assert(CANID_GEAR == frame->can_id);
+
+	char gear = 0;
+	gear = (char)frame->data[4];
+
+	printf("GearPos = %d ",gear);
+}
+
+
+void CanController::decodeSpeed(struct canfd_frame *frame){
+	assert(NULL != frame);
+	assert(CANID_VDC_ABS == frame->can_id);
+
 		int16_t spd = 0;
 		double result_spd = 0;
 		char spdtxt[2] = {'\0'};
@@ -208,14 +238,4 @@ void CanController::decodeSpeed(struct canfd_frame *frame){
 		sprint_long_canframe(buf, frame, view, maxdlen);
 		printf ("[DBG] SPD=%f(%x)kph hex=%02x%02x ",result_spd,result_spd,spdtxt[0],spdtxt[1]);
 
-	}else if(CANID_GEAR == frame->can_id){
-		char gear = 0;
-		gear = (char)frame->data[4];
-
-		sprint_long_canframe(buf, frame, view, maxdlen);
-		printf("GearPos = %d ",gear);
-	}
-
-	sprint_long_canframe(buf, frame, view, maxdlen);
-	printf(" orig=%s",buf);
 }
