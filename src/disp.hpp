@@ -27,7 +27,7 @@ signals:
 	void valueChanged(int value);
 
 public slots:
-	void setValue(int value);
+	void setValue(double value);
 
 public:
 	MeterWidget(int,char**);
