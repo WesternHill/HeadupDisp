@@ -1,7 +1,7 @@
+# for kivy GUI
 from kivy.config import Config
 Config.set('graphics', 'width', '400')
 Config.set('graphics', 'height', '300')
-
 from kivy.properties import NumericProperty,StringProperty
 from kivy.uix.label import Label
 from kivy.uix.boxlayout import BoxLayout
@@ -12,11 +12,17 @@ from kivy.lang import Builder
 from kivy.app import App
 
 import time
+import threading
+import socket
 
+
+#
+# GUI Declaration
+#
 Builder.load_string('''
 #:kivy 1.8.0
 
-<hudApp>:
+<hud>:
     BoxLayout:
         orientation: 'vertical'
         pos: root.pos
@@ -64,27 +70,90 @@ Builder.load_string('''
 ''')
 
 
-class hudApp(Widget):
+#
+# The information structure to be given for hudApp
+#
+class hudinfo:
+    def __init__(self):
+        self.speed = NumericProperty(0)
+        self.eng = NumericProperty(0)
+        self.gear = StringProperty("N")
+
+    def set_speed(spd):
+        self.speed = spd
+
+    def set_eng(eng):
+        self.eng = eng
+
+    def set_gear(gear):
+        self.gear = gear
+
+# ############################
+# DISPLAY FUNCTION
+# ############################
+
+class Hud(Widget):
     print("hudapp initiated")
     speed = NumericProperty(0)
     eng = NumericProperty(0)
     gear = StringProperty("N")
 
-    speed_org = 0
+    def read_data(self,hudinfo):
+        self.speed = hudinfo.speed
+        self.eng = hudinfo.eng
+        # self.gear = hudinfo.gear
+        print("read_data. speed=",self.speed)
 
-    def update_field(self, dt):
-        print("udpate_field timer")
-        self.speed += 1
 
-    def start(self):
-        print("initiated timer")
-        Clock.schedule_interval(self.update_field,0.5)
+#
+# ROOT of display function
+#
+class DispFunc(App):
+    hud = Hud()
 
-class TestApp(App):
+    def read_data(self,hudinfo):
+        self.hud.read_data(hudinfo)
+
     def build(self):
-        happ = hudApp()
-        happ.start()
-        return happ
+        return self.hud
+
+
+# ############################
+#  RECEIVE DATA FUNCTION
+# ############################
+class RecvFunc(threading.Thread):
+    # speed = NumericProperty(0)
+    # eng = NumericProperty(0)
+    speed = 0
+    eng = 0
+
+    def set_target(self,Hud):
+        self.df = Hud
+
+    def recv_data(self,dt):
+        print("recvdata")
+        self.speed += 1
+        self.eng += 1
+
+    def apply_data(self,dt):
+        hinf = hudinfo()
+        hinf.speed = self.speed
+        hinf.eng = self.eng
+
+        self.df.read_data(hinf)
+
+    def run(self):
+        # while 1:
+        Clock.schedule_interval(self.recv_data,0.5) # poseudo
+        Clock.schedule_interval(self.apply_data,2)
+
 
 if __name__ == '__main__':
-    TestApp().run()
+    recv_th = RecvFunc()
+    recv_th.start()
+
+    print(" separated thread")
+    disp_th = DispFunc()
+
+    recv_th.set_target(disp_th)
+    disp_th.run()
