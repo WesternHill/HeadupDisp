@@ -54,8 +54,8 @@ void MeterWidget::setValue(double param_spd){
   if(param_spd == speed){
     return;
   }
-  speed = spd;
-  emit valueChanged(speed);
+  speed = param_spd;
+  //emit valueChanged(speed);
 }
 
 /**

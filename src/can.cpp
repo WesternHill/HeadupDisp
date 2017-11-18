@@ -182,19 +182,19 @@ int CanController::read_can(const char *devname){
 void CanController::decode(struct canfd_frame *frame){
 	assert(NULL != frame);
 
-	canid_t canid = frame->canid;
+	canid_t canid = frame->can_id;
 	switch(canid){
 		case CANID_ENG:
 			decodeEng(frame);
 			break;
-		case CANID_VDC_ABC:
+		case CANID_VDC_ABS:
 			decodeSpeed(frame);
 			break;
 		case CANID_GEAR:
 			decodeGear(frame);
 			break;
 		default:
-			fprintf(stdout,"Un-suported canid (%x)",frame->canid);
+			fprintf(stdout,"Un-suported canid (%x)",canid);
 	}
 }
 
@@ -235,7 +235,6 @@ void CanController::decodeSpeed(struct canfd_frame *frame){
 		spd |= spdtxt[1];
 		result_spd =	(double)spd * (double)0.05625; //unit : km/h
 
-		sprint_long_canframe(buf, frame, view, maxdlen);
 		printf ("[DBG] SPD=%f(%x)kph hex=%02x%02x ",result_spd,result_spd,spdtxt[0],spdtxt[1]);
 
 }

@@ -18,6 +18,11 @@
 #include <unistd.h>
 #include <assert.h>
 
+
+#define CANID_ENG 0x410
+#define CANID_VDC_ABS 0x512
+#define CANID_GEAR 0x411
+
 class CanController
 {
 public:
@@ -26,9 +31,6 @@ public:
 	int rdy_recv_can(const char *devname,struct sockaddr_can *addr);
 
 private:
-	const canid_t CANID_ENG = 0x410;
-	const canid_t CANID_VDC_ABS = 0x512;
-	const canid_t CANID_GEAR = 0x411;
 
 	double spped;
 	double tach;
