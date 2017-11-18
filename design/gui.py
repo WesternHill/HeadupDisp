@@ -130,10 +130,19 @@ class RecvFunc(threading.Thread):
     def set_target(self,Hud):
         self.df = Hud
 
-    def recv_data(self,dt):
-        print("recvdata")
-        self.speed += 1
-        self.eng += 1
+    def conn_to_server(self,ip,port):
+        client = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
+        print("client connecting to ",ip,":",port)
+        client.connect((ip,port))
+        print("connected.")
+        return client
+
+    def recv_data(self,client):
+        while (1):
+            res = client.recv(4096)
+            print("recvdata")
+            self.speed += 1
+            self.eng += 1
 
     def apply_data(self,dt):
         hinf = hudinfo()
@@ -143,9 +152,11 @@ class RecvFunc(threading.Thread):
         self.df.read_data(hinf)
 
     def run(self):
-        # while 1:
-        Clock.schedule_interval(self.recv_data,0.5) # poseudo
+        client = self.conn_to_server("192.168.1.1",5000)
         Clock.schedule_interval(self.apply_data,2)
+
+        recv_data(client)
+
 
 
 if __name__ == '__main__':
