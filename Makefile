@@ -1,26 +1,35 @@
 CC		= gcc
-GXX		= g++
+GPP		= g++
 
-#CC=  #CROSS COMPILATION
-#GXX= #CROSS COMPILATION
+CFLAGS	= -g -Wall -pthread
 
-CFLAGS	= -g -Wall
-DEPS	= disp.hpp can.hpp
-LDFLAGS = 
-INCLUDE	= -I./include 
-SRCDIR	= ./src
+# Library flagss to be loaded e.g. -L../lib
+LDFLAGS =
+
+# Libraries to be loaded. e.g. -lfile
+LIBS =
+
+INCLUDE	= -I./include
+SRCDIR	= src
 SOURCES = $(wildcard $(SRCDIR)/*.cpp)
-OBJDIR  = ./obj
-OBJ		= $(addprefix $(OBJDIR)/, $(notdir $(SOURCES:.cpp=.o))) 
+# SOURCES += $(wildcard $(SRCDIR)/*.c)
 
-$(OBJDIR)/%.o: $(SRCDIR)/%.cpp
-	-mkdir -p $(OBJDIR)
-	$(GXX) $(CFLAGS) $(INCLUDE) -o $@ -c $<
 
-all: headupdisp
+OBJS		= $(SOURCES:.c = .o)
 
-headupdisp: $(OBJ)
-	g++ -o $@ $^ $(CFLAGS)
-	
-clean: 
+# Define the executable file
+EXECFILE=headupdisp
+
+all: $(EXECFILE)
+	@echo Compiling headupdisp
+
+# Command to make $(EXECFILE)
+$(EXECFILE): $(OBJS)
+	$(GPP) $(CFLAGS) $(INCLUDE)  -o $(EXECFILE) $(OBJS) $(LDFLAGS) $(LIBS)
+
+#Command to Make Object File
+.c.o:
+	$(GPP) $(CFLAGS) $(INCLUDES) -c $< -o $@
+
+clean:
 	rm -f $(OBJ)

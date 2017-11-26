@@ -9,8 +9,8 @@
 #include <stdint.h>
 #include <assert.h>
 
-#include "../include/lib.h"
-#include "../include/can.h"
+#include "lib.h"
+#include "can.h"
 
 #include "can.hpp"
 #include "storage.hpp"
@@ -61,7 +61,7 @@ int CanController::get_candev(const char *devname,struct sockaddr_can *addr){
 *
 *
 */
-int CanController::rdy_recv_can(const char *devname,struct sockaddr_can *addr){
+int CanController::rdy_recv_can(const char *devname,struct sockaddr_can *addr,can_decoded_value *can_dv){
 	assert(devname!=NULL);
 	assert(addr != NULL);
 
@@ -81,10 +81,12 @@ int CanController::rdy_recv_can(const char *devname,struct sockaddr_can *addr){
 		return 1;
 	}else{}
 
+	this->can_value = can_dv;
+	printf("[DBG] can_value = %p¥n",this->can_value);
+
 	#ifdef DEBUG
 	printf("[DBG] Now on ready for recv can with %s¥n",devname);
 	#endif
-
 	return 0;
 }
 
@@ -108,8 +110,8 @@ int CanController::read_can(const char *devname){
 	msg.msg_iov = &iov;
 	msg.msg_iovlen = 1;
 	msg.msg_control = &ctrlmsg;
-
 	addr.can_family = AF_CAN;
+
 
 	while (1 == running) {
 
@@ -159,11 +161,11 @@ int CanController::read_can(const char *devname){
 
 				int view = 0x0;
 				char buf[1000] = {0};
-				sprint_long_canframe(buf, &frame, view, maxdlen);
-				printf("recv : %s\n",buf);
+				// sprint_long_canframe(buf, &frame, view, maxdlen);
+				// printf("recv : %s\n",buf);
 
 				// decode
-				decode(&frame);
+				decode(&frame,this->can_value);
 
 				// regist
 				CanInfoStorage strg;
@@ -179,22 +181,24 @@ int CanController::read_can(const char *devname){
 	return 0;
 }
 
-void CanController::decode(struct canfd_frame *frame){
+void CanController::decode(struct canfd_frame *frame,can_decoded_value *result){
 	assert(NULL != frame);
 
 	canid_t canid = frame->can_id;
+
 	switch(canid){
 		case CANID_ENG:
 			decodeEng(frame);
 			break;
 		case CANID_VDC_ABS:
-			decodeSpeed(frame);
+			result->speed = decodeSpeed(frame);
 			break;
 		case CANID_GEAR:
 			decodeGear(frame);
 			break;
 		default:
-			fprintf(stdout,"Un-suported canid (%x)",canid);
+		// fprintf(stdout,"Un-suported canid (%x)",canid);
+			break;
 	}
 }
 
@@ -205,7 +209,7 @@ void CanController::decodeEng(struct canfd_frame *frame){
 	double gasPedal = 0.0;
 	gasPedal = (double)frame->data[4] * (double)(100/255);
 
-	std::cout << "GasPedal="<<gasPedal << endl;
+	// std::cout << "GasPedal="<<gasPedal << endl;
 }
 
 void CanController::decodeGear(struct canfd_frame *frame){
@@ -215,11 +219,11 @@ void CanController::decodeGear(struct canfd_frame *frame){
 	char gear = 0;
 	gear = (char)frame->data[4];
 
-	printf("GearPos = %d ",gear);
+	// printf("GearPos = %d ",gear);
 }
 
 
-void CanController::decodeSpeed(struct canfd_frame *frame){
+double CanController::decodeSpeed(struct canfd_frame *frame){
 	assert(NULL != frame);
 	assert(CANID_VDC_ABS == frame->can_id);
 
@@ -235,6 +239,6 @@ void CanController::decodeSpeed(struct canfd_frame *frame){
 		spd |= spdtxt[1];
 		result_spd =	(double)spd * (double)0.05625; //unit : km/h
 
-		printf ("[DBG] SPD=%f(%x)kph hex=%02x%02x ",result_spd,result_spd,spdtxt[0],spdtxt[1]);
-
+		printf ("[DBG] SPD=%f(%x)kph hex=%02x%02x \n",result_spd,result_spd,spdtxt[0],spdtxt[1]);
+		return result_spd;
 }

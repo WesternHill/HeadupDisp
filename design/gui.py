@@ -137,12 +137,16 @@ class RecvFunc(threading.Thread):
         print("connected.")
         return client
 
+    def decode_data(self,recvd_data):
+        self.speed = int(recvd_data)
+        self.eng += 1
+
     def recv_data(self,client):
         while (1):
             res = client.recv(4096)
-            print("recvdata")
-            self.speed += 1
-            self.eng += 1
+            self.decode_data(res)
+            # self.speed += 1
+            # self.eng += 1
 
     def apply_data(self,dt):
         hinf = hudinfo()
@@ -152,10 +156,9 @@ class RecvFunc(threading.Thread):
         self.df.read_data(hinf)
 
     def run(self):
-        client = self.conn_to_server("192.168.1.1",5000)
+        client = self.conn_to_server("127.0.0.1",50000)
         Clock.schedule_interval(self.apply_data,2)
-
-        recv_data(client)
+        self.recv_data(client)
 
 
 
