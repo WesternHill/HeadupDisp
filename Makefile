@@ -1,7 +1,7 @@
 CC		= gcc
 GPP		= g++
 
-CFLAGS	= -g -Wall -pthread
+CFLAGS	= -g -Wall -pthread -std=c++11
 
 # Library flagss to be loaded e.g. -L../lib
 LDFLAGS =

@@ -18,7 +18,6 @@ void CanInfoStorage::regist_canid(CanInfo caninfo){
 }
 
 canid_t CanInfoStorage::get_canid(can_kind_t key){
-	canid_t ret;
 	map<canid_t,CanInfo>::iterator itr = can_storage.find(key);
 	if(itr!= can_storage.end()){
 		return itr->first;

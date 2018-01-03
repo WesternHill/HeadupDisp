@@ -65,7 +65,6 @@ int CanController::rdy_recv_can(const char *devname,struct sockaddr_can *addr,ca
 	assert(devname!=NULL);
 	assert(addr != NULL);
 
-	int socketid = 0;
 	get_candev(devname,addr);
 
 	addr->can_family = AF_CAN;
@@ -73,16 +72,16 @@ int CanController::rdy_recv_can(const char *devname,struct sockaddr_can *addr,ca
 	skt[sktidx] = socket(PF_CAN, SOCK_RAW, CAN_RAW);
 	if (skt[sktidx] < 0) {
 		perror("socket");
-		return 1;
+		return -1;
 	}else{}
 
 	if ((bind(skt[sktidx], (struct sockaddr *)addr, sizeof(*addr)) < 0)) {
 		perror("bind");
-		return 1;
+		return -1;
 	}else{}
 
 	this->can_value = can_dv;
-	printf("[DBG] can_value = %p¥n",this->can_value);
+	// printf("[DBG] can_value = %p¥n",this->can_value);
 
 	#ifdef DEBUG
 	printf("[DBG] Now on ready for recv can with %s¥n",devname);
@@ -90,8 +89,12 @@ int CanController::rdy_recv_can(const char *devname,struct sockaddr_can *addr,ca
 	return 0;
 }
 
+/**
+ *
+ */
 int CanController::read_can(const char *devname){
 	assert(devname!=NULL);
+	assert(can_value!=NULL);
 
 	fd_set rdfs;
 	struct iovec iov;
@@ -111,7 +114,6 @@ int CanController::read_can(const char *devname){
 	msg.msg_iovlen = 1;
 	msg.msg_control = &ctrlmsg;
 	addr.can_family = AF_CAN;
-
 
 	while (1 == running) {
 
@@ -137,7 +139,6 @@ int CanController::read_can(const char *devname){
 				msg.msg_flags = 0;
 
 				nbytes = recvmsg(skt[i], &msg, 0);
-//				int idx = idx2dindex(addr.can_ifindex, skt[i]);
 
 				/* check interface is available */
 				if (nbytes < 0) {
@@ -159,13 +160,13 @@ int CanController::read_can(const char *devname){
 					return -1;
 				}
 
-				int view = 0x0;
-				char buf[1000] = {0};
+				// int view = 0x0;
+				// char buf[1000] = {0};
 				// sprint_long_canframe(buf, &frame, view, maxdlen);
 				// printf("recv : %s\n",buf);
 
 				// decode
-				decode(&frame,this->can_value);
+				decode(&frame);
 
 				// regist
 				CanInfoStorage strg;
@@ -181,20 +182,25 @@ int CanController::read_can(const char *devname){
 	return 0;
 }
 
-void CanController::decode(struct canfd_frame *frame,can_decoded_value *result){
+/**
+ * Decode canframe into can_decoded_value
+ * input : received canfd_frame
+ * output: can_decoded_value
+ */
+void CanController::decode(struct canfd_frame *frame){
 	assert(NULL != frame);
 
 	canid_t canid = frame->can_id;
 
 	switch(canid){
 		case CANID_ENG:
-			decodeEng(frame);
+			can_value->tach = decodeEng(frame);
 			break;
 		case CANID_VDC_ABS:
-			result->speed = decodeSpeed(frame);
+			can_value->speed = decodeSpeed(frame);
 			break;
 		case CANID_GEAR:
-			decodeGear(frame);
+			can_value->gear = decodeGear(frame);
 			break;
 		default:
 		// fprintf(stdout,"Un-suported canid (%x)",canid);
@@ -202,24 +208,35 @@ void CanController::decode(struct canfd_frame *frame,can_decoded_value *result){
 	}
 }
 
-void CanController::decodeEng(struct canfd_frame *frame){
-	assert(NULL != frame);
-	assert( CANID_ENG == frame->can_id );
+double CanController::decodeEng(struct canfd_frame *frame){
+        assert(NULL != frame);
+        assert( CANID_ENG == frame->can_id );
 
-	double gasPedal = 0.0;
-	gasPedal = (double)frame->data[4] * (double)(100/255);
+        double gasPedal = 0.0;
+        gasPedal = (double)frame->data[4] * (double)(100/255);
 
-	// std::cout << "GasPedal="<<gasPedal << endl;
+
+        int eng_spd = 0;
+        eng_spd = (char)frame->data[6] & 0xFF;
+        eng_spd = (eng_spd << 8);
+        eng_spd |= (char)frame->data[5] & 0xFF;
+
+        std::cout << "GasPedal="<<gasPedal << endl;
+        std::cout << "EngSpd=" << eng_spd << endl;
+
+	printf("Eng=%.1f(%x) rpm\n",(double)eng_spd*0.001,eng_spd);
+	
+	return gasPedal;
 }
 
-void CanController::decodeGear(struct canfd_frame *frame){
+char CanController::decodeGear(struct canfd_frame *frame){
 	assert(NULL != frame);
 	assert(CANID_GEAR == frame->can_id);
 
 	char gear = 0;
 	gear = (char)frame->data[4];
 
-	// printf("GearPos = %d ",gear);
+	return gear;
 }
 
 
