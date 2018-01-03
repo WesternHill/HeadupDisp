@@ -9,6 +9,7 @@
 #include <stdio.h>
 #include <pthread.h>
 #include <assert.h>
+#include <thread>
 
 #include "can.h"
 #include "type.hpp"
@@ -37,7 +38,7 @@ void MeterController::start_thread(can_decoded_value *can_db)
 	thread_arg th_arg;
 	th_arg.mctrl = this;
 	th_arg.can_db = can_db;
-	printf("[DBG] th_arg(%p): mctrl(%p),can_db(%p)\n",&th_arg,&(th_arg.mctrl),&(th_arg.can_db));
+	printf("[DBG] th_arg(%p): mctrl(%p),can_db(%p)\n",&th_arg,(th_arg.mctrl),(th_arg.can_db));
 
 	can_db->speed = 0;
 	can_db->tach = 0;
@@ -45,11 +46,14 @@ void MeterController::start_thread(can_decoded_value *can_db)
 
 	// Get ready for run thread
 	pthread_mutex_init(&(this->thrd_mutex),NULL); // control priority for variables
-	pthread_create(
-			&(this->thrd_handler),
-			NULL,
-			&MeterController::start_main_loop,
-			(void *)&th_arg); // building thread
+	// pthread_create(
+	// 		&(this->thrd_handler),
+	// 		NULL,
+	// 		&MeterController::start_main_loop,
+	// 		(void *)&th_arg); // building thread
+	std::thread th1(start_main_loop,&th_arg);
+  th1.detach();
+
 	cout << "pthread process done" << endl;
 
 }
@@ -62,7 +66,7 @@ void* MeterController::start_main_loop(void *args)
 	assert(args != NULL);
 
 	thread_arg *th_arg = (thread_arg *)args;
-	printf("[DBG] passed th_arg(%p): mctrl(%p),can_db(%p)\n",th_arg,&(th_arg->mctrl),&(th_arg->can_db));
+	printf("[DBG] passed th_arg(%p): mctrl(%p),can_db(%p)\n",th_arg,(th_arg->mctrl),(th_arg->can_db));
 
 	cout << " starting main_loop(MeterController)" << endl;
 	(reinterpret_cast<MeterController *>(th_arg->mctrl))->main_loop(th_arg->can_db);
@@ -70,37 +74,48 @@ void* MeterController::start_main_loop(void *args)
 	return (void *)NULL;
 }
 
-void MeterController::main_loop(can_decoded_value *can_db){
-	assert(can_db != NULL);
+void MeterController::main_loop(can_decoded_value *can_dtbs){
+	assert(can_dtbs != NULL);
 
 	//set up
 	CanController *canctrl = new CanController;
-	const char *devname="vcan0";
+	const char *devname="can0";
 	struct sockaddr_can addr;
 	addr.can_family = AF_CAN;
 
-	canctrl->rdy_recv_can(devname,&addr,can_db);
+	int rdy_result = 0;
+	rdy_result = canctrl->rdy_recv_can(devname,&addr,can_dtbs);
+	if(rdy_result < 0){
+		fprintf(stderr,"[FTL] Failed to get ready for receive CAN.\n");
+		return;
+	}
 
 	while(1){
-		int ret = canctrl->read_can(devname);
-		printf("[DBG] this->spd=%d\n",can_db->speed);
-
-		if(0 > ret){
-				fprintf(stderr,"[ERR] read_can halt with err.¥n");
-				return ;
-		}
-
-		// FUNC: convert to MeterContents-type
 	    pthread_mutex_lock(&(this->thrd_mutex));   // Block until get priority-right, then lock
-		// FUNC: save as latest MeterContent-type data
+			int ret = canctrl->read_can(devname);
 	    pthread_mutex_unlock(&(this->thrd_mutex)); // Unlock
-	    // FUNC: send to Meter
+
+			if(0 > ret){
+					fprintf(stderr,"[ERR] read_can halt with err.¥n");
+					return ;
+			}
 	}
 }
 
-int MeterController::get_spd(void){
-	return this->spd;
-}
+// int MeterController::get_canvalue(can_decoded_value *result){
+// 	pthread_mutex_lock(&(this->thrd_mutex));   // Block until get priority-right, then lock
+//
+//   result->speed 	= can_db->speed;
+// 	result->tach 		= can_db->tach;
+// 	result->fuel_lv = can_db->fuel_lv;
+// 	result->gear 		= can_db->gear;
+//
+// 	pthread_mutex_unlock(&(this->thrd_mutex)); // Unlock
+// }
+//
+// int MeterController::get_spd(void){
+// 	return this->spd;
+// }
 
 /**
  * Get latest meter contents

@@ -36,7 +36,7 @@ Builder.load_string('''
 
             Label:
                 text: str(root.speed)
-                font_size: 100
+                font_size: 120
 
             Label:
                 text: str('kph')
@@ -53,20 +53,7 @@ Builder.load_string('''
 
             Label:
                 text: str('rpm')
-                font_size: 30
-
-        BoxLayout:
-            Label:
-                text: str('Gear Pos')
-                font_size: 30
-
-            Label:
-                text: str(root.gear)
-                font_size: 50
-
-            Label:
-                text: str('')
-                font_size: 30
+                font_size: 35
 ''')
 
 
@@ -157,7 +144,7 @@ class RecvFunc(threading.Thread):
 
     def run(self):
         client = self.conn_to_server("127.0.0.1",50000)
-        Clock.schedule_interval(self.apply_data,2)
+        Clock.schedule_interval(self.apply_data,0.1)
         self.recv_data(client)
 
 
