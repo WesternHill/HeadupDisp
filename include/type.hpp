@@ -10,4 +10,10 @@
 
 typedef unsigned int canid_t;
 
+typedef enum{
+  OK,
+  FAIL
+}result_t;
+
+
 #endif /* TYPE_HPP_ */

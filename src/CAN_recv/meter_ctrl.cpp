@@ -43,6 +43,7 @@ void MeterController::start_thread(can_decoded_value *can_db)
 	can_db->speed = 0;
 	can_db->tach = 0;
 	can_db->fuel_lv = 0;
+	can_db->fuel_consumpt = 0;
 
 	// Get ready for run thread
 	pthread_mutex_init(&(this->thrd_mutex),NULL); // control priority for variables
@@ -79,7 +80,7 @@ void MeterController::main_loop(can_decoded_value *can_dtbs){
 
 	//set up
 	CanController *canctrl = new CanController;
-	const char *devname="can0";
+	const char *devname="vcan0";
 	struct sockaddr_can addr;
 	addr.can_family = AF_CAN;
 
@@ -102,20 +103,6 @@ void MeterController::main_loop(can_decoded_value *can_dtbs){
 	}
 }
 
-// int MeterController::get_canvalue(can_decoded_value *result){
-// 	pthread_mutex_lock(&(this->thrd_mutex));   // Block until get priority-right, then lock
-//
-//   result->speed 	= can_db->speed;
-// 	result->tach 		= can_db->tach;
-// 	result->fuel_lv = can_db->fuel_lv;
-// 	result->gear 		= can_db->gear;
-//
-// 	pthread_mutex_unlock(&(this->thrd_mutex)); // Unlock
-// }
-//
-// int MeterController::get_spd(void){
-// 	return this->spd;
-// }
 
 /**
  * Get latest meter contents

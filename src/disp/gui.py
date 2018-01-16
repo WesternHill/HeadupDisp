@@ -14,6 +14,7 @@ from kivy.app import App
 import time
 import threading
 import socket
+import json
 
 
 #
@@ -125,8 +126,17 @@ class RecvFunc(threading.Thread):
         return client
 
     def decode_data(self,recvd_data):
-        self.speed = int(recvd_data)
-        self.eng += 1
+        dec = json.loads(frame)
+        print("spd=",dec['spd'])
+        print("eng=",dec['eng'])
+        print("fuel-consumpt=",dec['fuel_consumpt'])
+
+        self.speed = dec['spd']
+        self.eng = dec['eng']
+
+        # OLD IMPLEMENTATION
+        # self.speed = int(recvd_data)
+        # self.eng += 1
 
     def recv_data(self,client):
         while (1):

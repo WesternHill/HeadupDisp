@@ -4,14 +4,16 @@ GPP		= g++
 CFLAGS	= -g -Wall -pthread -std=c++11
 
 # Library flagss to be loaded e.g. -L../lib
-LDFLAGS =
+LDFLAGS = -ljansson
 
 # Libraries to be loaded. e.g. -lfile
-LIBS =
+LIBS = -L/usr/local/lib
 
 INCLUDE	= -I./include
 SRCDIR	= src
-SOURCES = $(wildcard $(SRCDIR)/*.cpp)
+SOURCES += $(wildcard $(SRCDIR)/CAN_recv/*.cpp)
+SOURCES += $(wildcard $(SRCDIR)/disp/*.cpp)
+
 # SOURCES += $(wildcard $(SRCDIR)/*.c)
 
 

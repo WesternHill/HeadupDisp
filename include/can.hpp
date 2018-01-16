@@ -27,6 +27,7 @@ typedef struct st_can_decoded_value{
 	int speed;
 	double tach;
 	int fuel_lv;
+	int fuel_consumpt;
 	char gear;
 }can_decoded_value;
 

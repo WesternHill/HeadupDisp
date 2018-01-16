@@ -221,12 +221,12 @@ double CanController::decodeEng(struct canfd_frame *frame){
         eng_spd = (eng_spd << 8);
         eng_spd |= (char)frame->data[5] & 0xFF;
 
-        std::cout << "GasPedal="<<gasPedal << endl;
-        std::cout << "EngSpd=" << eng_spd << endl;
+  //       std::cout << "GasPedal="<<gasPedal << endl;
+  //       std::cout << "EngSpd=" << eng_spd << endl;
+  //
+	// printf("Eng=%.1f(%x) rpm\n",(double)eng_spd*0.001,eng_spd);
 
-	printf("Eng=%.1f(%x) rpm\n",(double)eng_spd*0.001,eng_spd);
-	
-	return gasPedal;
+	return (double)eng_spd*0.001;
 }
 
 char CanController::decodeGear(struct canfd_frame *frame){
